@@ -13,12 +13,12 @@ Welcome to Cartify Backend! This repository contains the backend codebase for Ca
 
 ## Technologies Used
 
-- **Programming Language:** [Typescript, NodeJs]
-- **Framework:** [Express.js]
-- **Database:** [MongoDB]
-- **Authentication:** [Sessions with passportJs and Redis]
-- **Bucket:** [Firebase Storage]
-- **Deployment:** [Render]
+- **Programming Language:** Typescript, NodeJs.
+- **Framework:** Express.js.
+- **Database:** MongoDB
+- **Authentication:** Sessions with passportJs and Redis
+- **Bucket:** Firebase Storage
+- **Deployment:** Render with Docker
 
 ## Getting Started
 
