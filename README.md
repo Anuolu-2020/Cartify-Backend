@@ -17,6 +17,7 @@ Welcome to Cartify Backend! This repository contains the backend codebase for Ca
 - **Framework:** [Express.js]
 - **Database:** [MongoDB]
 - **Authentication:** [Sessions with passportJs and Redis]
+- **Bucket:** [Firebase Storage]
 - **Deployment:** [Render]
 
 ## Getting Started
@@ -33,4 +34,14 @@ To get started with Cartify Backend, follow these steps:
 ``` bash
 cd cartify-backend
 npm install
+```
+3. **Set Environment Variables:**
+  Create a .env file in the root directory and add the necessary environment variables, including database connection URI, session secret, redis connection string,Node_Env, firebase config etc. 
 
+4. **Run the Server:**
+ ``` bash
+  npm start
+```
+5. **Testing:**
+   Use tools like Postman to test the APIs. Refer to the API documentation for available endpoints and request/response formats. **(Coming Soon)**
+   
