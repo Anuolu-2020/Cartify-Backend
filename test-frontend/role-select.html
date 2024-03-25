@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Role Selection</title>
+  </head>
+  <body>
+    <h2>Select Your Role</h2>
+    <form id="roleSelectionForm">
+      <input type="radio" id="user" name="role" value="user" />
+      <label for="user">User</label><br />
+      <input type="radio" id="vendor" name="role" value="vendor" />
+      <label for="vendor">Vendor</label><br /><br />
+
+      <div id="vendorDetails" style="display: none">
+        <label for="address">Address:</label><br />
+        <input type="text" id="address" name="address" /><br /><br />
+
+        <label for="phone">Phone Number:</label><br />
+        <input type="text" id="phone" name="phoneNumber" /><br /><br />
+
+        <button type="submit">Register as Vendor</button>
+      </div>
+
+      <div id="userDetails">
+        <!-- Additional details for user if needed -->
+        <p id="message"></p>
+      </div>
+    </form>
+
+    <script>
+      let message = document.getElementById("message");
+
+      document
+        .getElementById("roleSelectionForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          var role = document.querySelector('input[name="role"]:checked').value;
+
+          if (role === "vendor") {
+            var address = document.getElementById("address").value;
+            var phone = document.getElementById("phone").value;
+
+            // Make API call to register as a vendor and update address and phone
+            // Replace the following line with your actual API endpoint
+            var apiUrl =
+              "https://afriquespark.onrender.com/api/v1/users/update-role";
+
+            var requestData = {
+              address: address,
+              phoneNumber: phone,
+              // You can include additional data as needed for your API call
+            };
+
+            fetch(apiUrl, {
+              method: "PUT",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(requestData),
+            })
+              .then((response) => {
+                if (!response.ok) {
+                  console.log(response);
+                  return;
+                }
+                return response.json();
+              })
+              .then((data) => {
+                if (data.error) {
+                  message.textContent = data.error;
+                  return;
+                }
+                // Handle success response from the API
+                console.log(data);
+
+                message.textContent = "Registration as vendor successful!";
+                // Optionally redirect to a dashboard or another page
+
+                window.location.href = "./index.html";
+              })
+              .catch((error) => {
+                // Handle error response from the API
+                console.error(
+                  "There was a problem with your fetch operation:",
+                  error
+                );
+
+                message.textContent =
+                  "Registration failed. Please try again later.";
+
+                setTimeout(() => {
+                  message.textContent = "";
+                }, 2000);
+              });
+          } else {
+            // Redirect to the user dashboard or another page for regular users
+            window.location.href = "/productPage.html";
+          }
+        });
+
+      document.getElementById("vendor").addEventListener("click", function () {
+        document.getElementById("vendorDetails").style.display = "block";
+      });
+
+      document.getElementById("user").addEventListener("click", function () {
+        document.getElementById("vendorDetails").style.display = "none";
+      });
+    </script>
+  </body>
+</html>

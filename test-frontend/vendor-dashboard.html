@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vendor Dashboard</title>
+    <style>
+      /* Basic styling */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 0 20px;
+      }
+      .product {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+        position: relative; /* Added */
+      }
+      .product img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+      }
+      /* Added */
+      .delete-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="./dashboard.html">UPLOAD PRODUCT</a>
+    <a href="./productPage.html">GO TO PRODUCT PAGE</a>
+    <div class="container">
+      <h1>Vendor Dashboard</h1>
+      <h2>My Products</h2>
+      <div id="products-container"></div>
+      <button onclick="deleteSelectedProducts()">
+        Delete Selected Products
+      </button>
+      <!-- Added -->
+    </div>
+
+    <script>
+      // Function to fetch products from API and display them
+      async function fetchProducts() {
+        try {
+          const response = await fetch(
+            "https://afriquespark.onrender.com/api/v1/vendor/products?fields=name,photo,price",
+            { method: "GET", credentials: "include" }
+          );
+          const data = await response.json();
+
+          const products = data.payload;
+
+          console.log(data);
+
+          if (!products || products.length === 0) {
+            document.getElementById(
+              "products-container"
+            ).innerHTML = `<h3>${data.message}</h3>`;
+
+            return;
+          }
+
+          const productsContainer =
+            document.getElementById("products-container");
+
+          // Clear previous products
+          productsContainer.innerHTML = "";
+
+          // Loop through products and display them
+          products.forEach((product) => {
+            const productDiv = document.createElement("div");
+            productDiv.classList.add("product");
+
+            const productName = document.createElement("h2");
+            productName.textContent = product.name;
+
+            const productPrice = document.createElement("p");
+            productPrice.textContent = `Price: N${product.price}`;
+
+            const productImage = document.createElement("img");
+            productImage.src = product.photo;
+            productImage.alt = product.name;
+
+            // Add checkbox for each product
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = product._id; // Set the value to product ID
+            checkbox.classList.add("product-checkbox");
+            productDiv.appendChild(checkbox);
+
+            productDiv.appendChild(productName);
+            productDiv.appendChild(productImage);
+            productDiv.appendChild(productPrice);
+
+            productsContainer.appendChild(productDiv);
+          });
+        } catch (error) {
+          console.error("Error fetching products:", error);
+        }
+      }
+
+      // Function to delete selected products
+      async function deleteSelectedProducts() {
+        const checkboxes = document.querySelectorAll(
+          ".product-checkbox:checked"
+        );
+        const productIds = Array.from(checkboxes).map(
+          (checkbox) => checkbox.value
+        );
+
+        if (productIds.length === 0) {
+          alert("Please select at least one product to delete.");
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            "https://afriquespark.onrender.com/api/v1/vendor/products",
+            {
+              method: "DELETE",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ productIds: productIds }),
+            }
+          );
+          if (response.ok) {
+            alert("Selected products deleted successfully.");
+            fetchProducts(); // Refresh products after deletion
+          } else {
+            const errorMessage = await response.text();
+            alert(`Error deleting products: ${errorMessage}`);
+          }
+        } catch (error) {
+          console.error("Error deleting products:", error);
+        }
+      }
+
+      fetchProducts();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up Form</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <h2>Sign Up</h2>
+    <form id="signupForm">
+      <label for="fullname">Full Name:</label><br />
+      <input type="text" id="fullname" name="fullname" required /><br /><br />
+
+      <label for="email">Email:</label><br />
+      <input type="email" id="email" name="email" required /><br /><br />
+
+      <label for="password">Password:</label><br />
+      <input
+        type="password"
+        id="password"
+        name="password"
+        minlength="8"
+        required
+      /><br /><br />
+
+      <label for="passwordConfirm">Confirm Password:</label><br />
+      <input
+        type="password"
+        id="confirm_password"
+        name="passwordConfirm"
+        minlength="8"
+        required
+      /><br /><br />
+
+      <button type="submit">Sign Up</button>
+    </form>
+    <p id="message"></p>
+    <script>
+      let message = document.getElementById("message");
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const formData = new FormData(this);
+
+          const fullname = formData.get("fullname");
+          const email = formData.get("email");
+          const password = formData.get("password");
+          const confirmPassword = formData.get("passwordConfirm");
+
+          if (password !== confirmPassword) {
+            message.textContent = "Passwords do not match.";
+
+            setTimeout(() => {
+              message.textContent = "";
+            }, 2000);
+
+            return;
+          }
+
+          axios
+            .post("https://afriquespark.onrender.com/api/v1/auth/sign-up", {
+              fullname: fullname,
+              email: email,
+              password: password,
+              passwordConfirm: confirmPassword,
+            })
+            .then((response) => {
+              // Handle success response from the API
+              console.log(response);
+
+              message.textContent = "Sign up successful!";
+
+              localStorage.setItem(
+                "user",
+                JSON.stringify(response.data["payload"].user)
+              );
+
+              window.location.href = "./role-select.html";
+            })
+            .catch((error) => {
+              // Handle error response from the API
+              console.error(
+                "There was a problem with your fetch operation:",
+                error
+              );
+
+              console.log(error.response);
+
+              message.textContent = error.response["data"].message;
+
+              setTimeout(() => {
+                message.textContent = "";
+              }, 5000);
+              //   message.textContent = "Sign up failed. Please try again later.";
+            });
+        });
+    </script>
+  </body>
+</html>
