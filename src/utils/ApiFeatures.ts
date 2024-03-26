@@ -24,6 +24,16 @@ class ApiFeatures<T extends Document> {
 
     return this;
   }
+
+  public paginate() {
+    const page = parseInt(this.query.page) * 1 || 1;
+    const limit = parseInt(this.query.limit) * 1 || 100;
+    const skip = (page - 1) * limit;
+
+    this.modelQuery = this.modelQuery.skip(skip).limit(limit);
+
+    return this;
+  }
 }
 
 export { ApiFeatures };
