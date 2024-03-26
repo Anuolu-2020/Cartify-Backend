@@ -10,8 +10,16 @@ jobs:
    build: 
      runs-on: ubuntu-latest
      steps:
+       - name: Checkout code  
        - uses: actions/checkout@v4
+
+       - name: Use Node.js
        - uses: actions/setup-node@v4
          with: 
            node-version: 20
-       - run: npm run lint
+
+       - name: Install Dependencies 
+         run: npm Install
+
+       - name: Run ESLint
+         run: npm run lint
