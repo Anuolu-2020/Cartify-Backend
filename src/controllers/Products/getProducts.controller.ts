@@ -3,7 +3,10 @@ import { IUser } from "../../models/user.interface";
 import { ReqQuery, productParams } from "../../types/requestQuery.interface";
 import { ApiFeatures } from "../../utils/ApiFeatures";
 import { errorHandler } from "../../utils/error.handler.class";
-import { validateProductId } from "../../utils/validateUserInput";
+import {
+  validateProductId,
+  validateUserId,
+} from "../../utils/validateUserInput";
 import { Response, NextFunction, Request } from "express";
 
 // Get all products
@@ -74,11 +77,18 @@ const getVendorProducts = async (
   res: Response,
   next: NextFunction,
 ) => {
+  const vendor = req.user as IUser;
+
+  const vendorId = vendor._id;
+
+  const { error } = validateUserId(vendorId);
+
+  if (error) {
+    const errorMessage = error.details[0].message.replace(/"/g, ""); // strip out quotes
+    return next(new errorHandler(400, errorMessage));
+  }
+
   try {
-    const vendor = req.user as IUser;
-
-    const vendorId = vendor._id;
-
     const features = new ApiFeatures(
       productModel.find({ vendorId: vendorId }),
       req.query,
