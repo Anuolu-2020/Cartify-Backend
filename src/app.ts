@@ -8,8 +8,10 @@ import { v4 as uuidv4 } from "uuid";
 import cors from "cors";
 import session from "express-session";
 import RedisStore from "connect-redis";
+import { RedisStore as rateLimitRedisStore } from "rate-limit-redis";
 import { createClient } from "redis";
 import dotenv from "dotenv";
+import { rateLimit } from "express-rate-limit";
 
 //Middlewares
 import welcomeToApi from "./middlewares/welcome.middleware";
@@ -67,6 +69,21 @@ redisClient.connect();
 const redisStore = new RedisStore({
   client: redisClient,
 });
+
+//RATE LIMITER MIDDLEWARE CONFIGURATION
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // limit each IP to 50 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+  standardHeaders: true, // Standard headers
+  legacyHeaders: false, // Disable the 'X-RateLimit-*' headers
+  store: new rateLimitRedisStore({
+    sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+  }),
+});
+
+//RATE LIMITER
+app.use(limiter);
 
 // MANAGE COOKIE SESSIONS
 app.use(
