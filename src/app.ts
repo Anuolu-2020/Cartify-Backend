@@ -118,7 +118,7 @@ app.use("/api/v:version/auth", checkApiVersion, authRoute);
 app.use("/api/v:version/products", checkApiVersion, productRoute);
 
 //CART ROUTES
-app.use("/api/v:version/cart", checkApiVersion, isAuthenticated, cartRoute);
+app.use("/api/v:version/carts", checkApiVersion, isAuthenticated, cartRoute);
 
 //VENDOR ROUTES
 app.use("/api/v:version/vendor", checkApiVersion, isAuthenticated, vendorRoute);
