@@ -10,7 +10,7 @@
     "build": "npx tsc",
     "start:dev": "cross-env NODE_ENV=development node build/server.js",
     "start:prod": "cross-env NODE_ENV=production node build/server.js",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts --fix ."
   },
   "dependencies": {
     "@types/node": "^20.11.30",
