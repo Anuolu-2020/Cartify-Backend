@@ -76,13 +76,31 @@ function validateIds(ids: string[]) {
 }
 // .regex(/^[0-9a-fA-F]{24}$/, message)
 
-function validateProductId(id: { type: mongoose.Types.ObjectId }) {
+function validateProductId(id: { type: mongoose.Types.ObjectId } | string) {
   const schema = Joi.string()
     .regex(/^[0-9a-fA-F]{24}$/)
     .message("must be an oid")
     .required();
 
   return schema.validate(id, joiOptions);
+}
+
+function validateUserId(id: { type: mongoose.Types.ObjectId } | string) {
+  const schema = Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .message("must be an oid")
+    .required();
+
+  return schema.validate(id, joiOptions);
+}
+
+function validateProductReview(review: object) {
+  const schema = Joi.object({
+    rating: Joi.number().min(0).max(5).required(),
+    review: Joi.string().required(),
+  });
+
+  return schema.validate(review, joiOptions);
 }
 
 export {
@@ -93,4 +111,6 @@ export {
   validateUserRoleUpdate,
   validateIds,
   validateProductId,
+  validateProductReview,
+  validateUserId,
 };
