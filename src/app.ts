@@ -26,6 +26,7 @@ import { userRoute } from "./routes/user.route";
 import { router as productRoute } from "./routes/Products/product.route";
 import { router as vendorRoute } from "./routes/Products/vendor.route";
 import { router as cartRoute } from "./routes/Cart/cart.route";
+import { router as reviewRoute } from "./routes/Review/review.route";
 
 const app = express();
 
@@ -124,6 +125,14 @@ app.use("/api/v:version/vendor", checkApiVersion, isAuthenticated, vendorRoute);
 
 //USER'S ROUTES
 app.use("/api/v:version/users", checkApiVersion, isAuthenticated, userRoute);
+
+//REVIEW ROUTES
+app.use(
+  "/api/v:version/reviews",
+  checkApiVersion,
+  isAuthenticated,
+  reviewRoute,
+);
 
 //UNDEFINED ROUTES
 app.all("*", (_, res) => {
