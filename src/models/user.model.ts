@@ -1,4 +1,4 @@
-import mongoose, { Model } from "mongoose";
+import mongoose from "mongoose";
 import * as bcrypt from "bcrypt";
 import { IUser } from "./user.interface";
 
