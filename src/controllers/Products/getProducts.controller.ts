@@ -25,6 +25,13 @@ const getAllProducts = async (
     // Get the products after filtering
     const product = await features.modelQuery;
 
+    if (!product || product.length === 0) {
+      return res.status(404).json({
+        success: true,
+        message: "No products available",
+      });
+    }
+
     res.status(200).json({
       success: true,
       results: product.length,
