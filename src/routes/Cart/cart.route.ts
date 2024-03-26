@@ -5,8 +5,8 @@ import removeFromCart from "../../controllers/Cart/removeFromCart.controller";
 
 const router: Router = express.Router();
 
-router.route("/addToCart").post(addToCart);
-router.route("/getCart").get(getCart);
-router.route("/remove/product/:productId").post(removeFromCart);
+router.route("/").post(addToCart);
+router.route("/").get(getCart);
+router.route("/remove/:productId").post(removeFromCart);
 
 export { router };
