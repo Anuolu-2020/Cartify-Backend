@@ -8,7 +8,9 @@ export interface IProducts extends Document {
   name: string;
   photo: string;
   productDetails: string;
+  category: string;
   price: number;
+  rating: number;
   vendorName: string;
   vendorAddress: string;
 }
