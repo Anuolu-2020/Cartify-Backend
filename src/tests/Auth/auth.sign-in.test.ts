@@ -19,15 +19,15 @@ describe("Test Authentication: Sign-in", () => {
       .send(JSON.stringify(mockData))
       .expect(302);
 
-    const redirectResponse = request.get(
-      response.headers["location"].replace("http://localhost:8080", ""),
-    );
+    //const redirectResponse = request.get(
+    //response.headers["location"].replace("http://localhost:8080", ""),
+    //);
 
-    expect(redirectResponse.status).toBe(200);
-    expect(redirectResponse.headers["content-type"]).toBe(
+    expect(response.status).toBe(200);
+    expect(response.headers["content-type"]).toBe(
       "application/json; charset=utf-8",
     );
-    expect(redirectResponse.body.success).toBe(true);
+    expect(response.body.success).toBe(true);
   });
 
   //afterAll(async () => {
