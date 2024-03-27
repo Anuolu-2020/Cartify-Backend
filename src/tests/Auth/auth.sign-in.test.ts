@@ -1,4 +1,4 @@
-import { test, describe, expect, afterAll, beforeAll } from "vitest";
+import { test, describe, expect, beforeAll } from "vitest";
 import supertest, { Test } from "supertest";
 import { app } from "../../app";
 import { mockData } from "../mockData";
