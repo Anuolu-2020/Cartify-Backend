@@ -1,29 +1,25 @@
 // Dependencies
 import express from "express";
-import passport from "passport";
 import compression from "compression";
 import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
-import { v4 as uuidv4 } from "uuid";
 import cors from "cors";
-import session from "express-session";
-import RedisStore from "connect-redis";
 import { RedisStore as rateLimitRedisStore } from "rate-limit-redis";
 import { createClient } from "redis";
 import dotenv from "dotenv";
 import { rateLimit } from "express-rate-limit";
 
 //Middlewares
-import welcomeToApi from "./middlewares/welcome.middleware";
-import checkApiVersion from "./middlewares/checkApiVersion.middleware";
-import isAuthenticated from "./middlewares/checkAuthentication";
+import { welcomeToApi } from "./middlewares/welcome.middleware";
+import { checkApiVersion } from "./middlewares/checkApiVersion.middleware";
+import { isAuthenticated } from "./middlewares/checkAuthentication";
 import { globalErrorMiddleware } from "./middlewares/error/global.error.middleware";
 
 //Utils
 import { logger } from "./utils/logger";
 
 //Routes
-import authRoute from "./routes/Auth/auth.route";
+import { authRoute } from "./routes/Auth/auth.route";
 import { userRoute } from "./routes/user.route";
 import { router as productRoute } from "./routes/Products/product.route";
 import { router as vendorRoute } from "./routes/Products/vendor.route";
@@ -36,23 +32,21 @@ dotenv.config();
 
 //CORS
 app.use(
-  cors({
-    origin: [
-      "http://localhost:5500",
-      "http://localhost:3000",
-      "https://localhost:5500",
-      "https://localhost:3000",
-      "https://localhost:5173",
-      "https://localhost:8080",
-      "http://localhost:8080",
-      "127.0.0.1:8000:8000",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  }),
+	cors({
+		origin: [
+			"http://localhost:5500",
+			"http://localhost:3000",
+			"https://localhost:5500",
+			"https://localhost:3000",
+			"https://localhost:5173",
+			"https://localhost:8080",
+			"http://localhost:8080",
+			"127.0.0.1:8000:8000",
+		],
+		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		credentials: true,
+	}),
 );
-
-app.set("trust proxy", 1);
 
 app.use(express.json());
 
@@ -65,57 +59,23 @@ const redisClient = createClient({ url: process.env.REDIS_URL });
 //connect to redis
 redisClient.connect();
 
-// Initialize store.
-const redisStore = new RedisStore({
-  client: redisClient,
-});
-
 //RATE LIMITER MIDDLEWARE CONFIGURATION
 const limiter = rateLimit({
-  windowMs: 20 * 60 * 1000, // 15 minutes
-  max: 50, // limit each IP to 50 requests per windowMs
-  message: "Too many requests from this IP, please try again after 15 minutes",
-  standardHeaders: true, // Standard headers
-  legacyHeaders: false, // Disable the 'X-RateLimit-*' headers
-  store: new rateLimitRedisStore({
-    sendCommand: (...args: string[]) => redisClient.sendCommand(args),
-  }),
+	windowMs: 20 * 60 * 1000, // 15 minutes
+	max: 50, // limit each IP to 50 requests per windowMs
+	message: "Too many requests from this IP, please try again after 15 minutes",
+	standardHeaders: true, // Standard headers
+	legacyHeaders: false, // Disable the 'X-RateLimit-*' headers
+	store: new rateLimitRedisStore({
+		sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+	}),
 });
 
 //RATE LIMITER
 app.use(limiter);
 
-// MANAGE COOKIE SESSIONS
-app.use(
-  session({
-    genid: () => {
-      return uuidv4();
-    },
-    store: redisStore,
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    proxy: true,
-    cookie: {
-      httpOnly: true,
-      maxAge: 120 * 60 * 60 * 1000, // expires in five-days
-      secure: process.env.NODE_ENV === "development" ? false : true,
-      sameSite: process.env.NODE_ENV === "development" ? false : "none",
-    },
-  }),
-);
-
 //For setting secure headers
 app.use(helmet());
-
-//For passport
-app.use(passport.authenticate("session"));
-
-//Initialize Passport
-app.use(passport.initialize());
-
-//Session for passport
-app.use(passport.session());
 
 //Prevent no-sql injection
 app.use(mongoSanitize({ allowDots: true }));
@@ -145,18 +105,18 @@ app.use("/api/v:version/users", checkApiVersion, isAuthenticated, userRoute);
 
 //REVIEW ROUTES
 app.use(
-  "/api/v:version/reviews",
-  checkApiVersion,
-  isAuthenticated,
-  reviewRoute,
+	"/api/v:version/reviews",
+	checkApiVersion,
+	isAuthenticated,
+	reviewRoute,
 );
 
 //UNDEFINED ROUTES
 app.all("*", (_, res) => {
-  res.status(404).json({
-    message: "Undefined API endpoint accessed.",
-    success: false,
-  });
+	res.status(404).json({
+		message: "Undefined API endpoint accessed.",
+		success: false,
+	});
 });
 
 //GLOBAL ERROR HANDLER MIDDLEWARE
