@@ -1,14 +1,14 @@
-import express = require("express");
+import express from "express";
 
 import { isRestrictedTo } from "../middlewares/roleAuth.middleware";
 
 const userRoute = express.Router();
 
 import {
-  getUserData,
-  createUser,
-  deleteUsers,
-  updateRole,
+	getUserData,
+	createUser,
+	deleteUsers,
+	updateRole,
 } from "../controllers/user.controller";
 
 userRoute.route("/update-role").put(updateRole);
