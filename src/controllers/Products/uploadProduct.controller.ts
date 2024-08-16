@@ -2,10 +2,10 @@ import bucketStorage from "../../config/firebase.config";
 import productModel from "../../models/product.model";
 import { validateProductUpload } from "../../utils/validateUserInput";
 import {
-  ref,
-  getDownloadURL,
-  updateMetadata,
-  uploadBytes,
+	ref,
+	getDownloadURL,
+	updateMetadata,
+	uploadBytes,
 } from "firebase/storage";
 import { Request, Response, NextFunction } from "express";
 
@@ -18,87 +18,82 @@ global.XMLHttpRequest = xhr2;
 
 // Upload a product
 const uploadProduct = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
+	req: Request,
+	res: Response,
+	next: NextFunction,
 ) => {
-  try {
-    // Validate the product upload
-    const { error } = validateProductUpload(req.body);
+	try {
+		// Validate the product upload
+		const { error } = validateProductUpload(req.body);
 
-    if (error) {
-      const errorMessage = error.details[0].message.replace(/"/g, ""); // strip out quotes
-      return res.status(400).json({
-        success: false,
-        message: errorMessage,
-      });
-    }
+		if (error) {
+			const errorMessage = error.details[0].message.replace(/"/g, ""); // strip out quotes
+			return res.status(400).json({
+				success: false,
+				message: errorMessage,
+			});
+		}
 
-    //Grab file
-    const file = req.file;
+		//Grab file
+		const file = req.file;
 
-    if (!file) {
-      return res.status(400).json({
-        success: false,
-        message: "No image provided",
-      });
-    }
+		if (!file) {
+			return res.status(400).json({
+				success: false,
+				message: "No image provided",
+			});
+		}
 
-    // Format the filename
-    const timestamp = Date.now();
-    const name = file.originalname.split(".")[0];
-    const type = file.originalname.split(".")[1];
-    const fileName = `${name}_${timestamp}.${type}`;
+		// Format the filename
+		const timestamp = Date.now();
+		const name = file.originalname.split(".")[0];
+		const type = file.originalname.split(".")[1];
+		const fileName = `${name}_${timestamp}.${type}`;
 
-    // Step 1. Create reference for storage and file name in cloud storage
-    const imageRef = ref(bucketStorage, `images/${fileName}`);
+		// Step 1. Create reference for storage and file name in cloud storage
+		const imageRef = ref(bucketStorage, `images/${fileName}`);
 
-    // Step 2. Upload the file in the bucket storage
-    const uploadImage = await uploadBytes(imageRef, file.buffer);
+		// Step 2. Upload the file in the bucket storage
+		const uploadImage = await uploadBytes(imageRef, file.buffer);
 
-    // Create file metadata.
-    const newMetadata = {
-      cacheControl: "public,max-age=2629800000", // 1 month
-      contentType: uploadImage.metadata.contentType,
-    };
+		// Create file metadata.
+		const newMetadata = {
+			cacheControl: "public,max-age=2629800000", // 1 month
+			contentType: uploadImage.metadata.contentType,
+		};
 
-    // Update the metadata for the file.
-    await updateMetadata(imageRef, newMetadata);
+		// Update the metadata for the file.
+		await updateMetadata(imageRef, newMetadata);
 
-    // Get the image URL.
-    const downloadURL = await getDownloadURL(imageRef);
+		// Get the image URL.
+		const downloadURL = await getDownloadURL(imageRef);
 
-    const {
-      productName,
-      productDetails,
-      productPrice,
-      vendorName,
-      vendorAddress,
-    } = req.body;
+		const { productName, productDetails, productPrice, category, units } =
+			req.body;
 
-    const vendor = req.user as IUser;
+		const vendor = req.user as IUser;
 
-    const vendorId = vendor._id;
+		const vendorId = vendor._id;
 
-    // Save the product to the database
-    const newProduct = await new productModel({
-      vendorId: vendorId,
-      name: productName,
-      photo: downloadURL,
-      productDetails: productDetails,
-      price: productPrice,
-      vendorName: vendorName,
-      vendorAddress: vendorAddress,
-    }).save();
+		// Save the product to the database
+		const newProduct = await new productModel({
+			vendor: vendorId,
+			name: productName,
+			photo: downloadURL,
+			productDetails: productDetails,
+			price: productPrice,
+			category: category,
+			units: units,
+		}).save();
 
-    res.status(201).json({
-      success: true,
-      message: "Product uploaded successfully",
-      payload: { newProduct },
-    });
-  } catch (err) {
-    next(err);
-  }
+		res.status(201).json({
+			success: true,
+			message: "Product uploaded successfully",
+			payload: { newProduct },
+		});
+	} catch (err) {
+		next(err);
+	}
 };
 
 export { uploadProduct };
