@@ -52,7 +52,7 @@ export class AuthenticationStrategy {
 				delete userObj.password;
 
 				//Sign token
-				const accesstoken = await signToken({ _id: user._id }, next);
+				const accesstoken = await signToken({ _id: user._id, role: user.role }, next);
 				console.log(`Paseto token is ${accesstoken}`);
 				//Sign user in
 				return { ...userObj, accesstoken };
@@ -80,7 +80,7 @@ export class AuthenticationStrategy {
 
 			console.log("user signed in with google");
 
-			return { ...userObj.toObject(), accesstoken };
+			return { ...userObj, accesstoken };
 		} catch (err) {
 			console.log(err);
 			return res.status(500).json({
