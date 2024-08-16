@@ -5,6 +5,7 @@ import { UserPayload } from "../types/user";
 
 const { sign, verify } = V4;
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export async function signToken(payload: any, next: NextFunction) {
 	try {
 		const token = await sign(
