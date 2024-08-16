@@ -8,88 +8,96 @@ import { validateAddToCart } from "../../utils/validateUserInput";
 import { IUser } from "../../models/user.interface";
 
 const addToCart = async (req: Request, res: Response, next: NextFunction) => {
-  //Validate request body
-  const { error } = validateAddToCart(req.body);
+	//Validate request body
+	const { error } = validateAddToCart(req.body);
 
-  if (error) {
-    const errorMessage = error.details[0].message.replace(/"/g, ""); // strip out quotes
-    return next(new errorHandler(400, errorMessage));
-  }
+	if (error) {
+		const errorMessage = error.details[0].message.replace(/"/g, ""); // strip out quotes
+		return next(new errorHandler(400, errorMessage));
+	}
 
-  try {
-    const { productId, quantity } = req.body;
+	try {
+		const { productId, quantity } = req.body;
 
-    //Get user from request object
-    const user = req.user as IUser;
+		//Get user from request object
+		const user = req.user as IUser;
 
-    //Get user id
-    const userId = user._id;
+		//Get user id
+		const userId = user._id;
 
-    const product = await ProductModel.findOne({ _id: productId });
+		const product = await ProductModel.findOne({ _id: productId });
 
-    if (!product) {
-      return next(new errorHandler(404, "Product not found"));
-    }
+		if (!product) {
+			return next(new errorHandler(404, "Product not found"));
+		}
 
-    //Calculate product total price
-    const productPrice = product.price * quantity;
+		if (product.units === 0) {
+			return next(new errorHandler(403, "Product out of stock"));
+		}
 
-    //Check if user already has a cart
-    let cart = await CartModel.findOne({ userId });
+		if (quantity > product.units) {
+			return next(new errorHandler(403, "Not enough product stock available"));
+		}
 
-    //User already as a cart
-    if (cart) {
-      //Get index of product in the cart
-      const itemIndex = cart.products.findIndex(
-        (p) => p.productId == productId,
-      );
+		//Calculate product total price
+		const productPrice = product.price * quantity;
 
-      //Product already exists
-      if (itemIndex > -1) {
-        const productItem = cart.products[itemIndex];
+		//Check if user already has a cart
+		let cart = await CartModel.findOne({ user: userId });
 
-        productItem.quantity = quantity;
+		//User already as a cart
+		if (cart) {
+			//Get index of product in the cart
+			const itemIndex = cart.products.findIndex(
+				(p) => p.productId == productId,
+			);
 
-        productItem.price = productPrice;
+			//Product already exists
+			if (itemIndex > -1) {
+				const productItem = cart.products[itemIndex];
 
-        //Get total price of all products
-        cart.totalPrice = cart.products
-          .map((item) => item.price)
-          .reduce((acc, next) => acc + next);
-      } else {
-        //Add new product to cart
-        cart.products.push({
-          productId,
-          name: product.name,
-          price: productPrice,
-          quantity,
-        });
+				productItem.quantity = quantity;
 
-        //Get total price of all products
-        cart.totalPrice = cart.products
-          .map((item) => item.price)
-          .reduce((acc, next) => acc + next);
-      }
+				productItem.price = productPrice;
 
-      //Save the cart
-      cart = await cart.save();
+				//Get total price of all products
+				cart.totalPrice = cart.products
+					.map((item) => item.price)
+					.reduce((acc, next) => acc + next);
+			} else {
+				//Add new product to cart
+				cart.products.push({
+					productId,
+					name: product.name,
+					price: productPrice,
+					quantity,
+				});
 
-      res.status(200).json(cart);
-    } else {
-      //User doesn't have a cart, Create a new cart
-      const newCart = await new CartModel({
-        userId,
-        products: [
-          { productId, name: product.name, price: productPrice, quantity },
-        ],
-        totalPrice: productPrice,
-      }).save();
+				//Get total price of all products
+				cart.totalPrice = cart.products
+					.map((item) => item.price)
+					.reduce((acc, next) => acc + next);
+			}
 
-      res.status(201).json(newCart);
-    }
-  } catch (err) {
-    return next(err);
-  }
+			//Save the cart
+			cart = await cart.save();
+
+			res.status(200).json(cart);
+		} else {
+			//User doesn't have a cart, Create a new cart
+			const newCart = await new CartModel({
+				user: userId,
+				products: [
+					{ productId, name: product.name, price: productPrice, quantity },
+				],
+				totalPrice: productPrice,
+			}).save();
+
+			res.status(201).json(newCart);
+		}
+	} catch (err) {
+		return next(err);
+	}
 };
 
 export = addToCart;
