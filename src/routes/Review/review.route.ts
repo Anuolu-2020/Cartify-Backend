@@ -1,12 +1,12 @@
 import express from "express";
 import {
-  addReview,
-  getReviews,
+	addReview,
+	getReviews,
 } from "../../controllers/Review/review.controller";
 
 const router = express.Router();
 
-router.post("/:userId/:productId", addReview);
+router.post("/:productId", addReview);
 router.get("/:productId", getReviews);
 
 export { router };
