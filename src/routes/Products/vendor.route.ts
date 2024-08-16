@@ -19,7 +19,7 @@ const upload = multer({ storage: storage });
 router.use(isRestrictedTo("vendor", "admin"));
 
 router
-  .route("/upload-product")
+  .route("/product")
   .post(upload.single("productImage"), uploadProduct);
 
 router.route("/products").get(getVendorProducts).delete(deleteVendorProducts);
