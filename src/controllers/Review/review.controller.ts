@@ -21,8 +21,6 @@ export const addReview = async (
 
 		const userId = user._id;
 
-		console.log(`User id is ${userId}`);
-
 		// Get the userId and productId from the request params
 		const { productId } = req.params;
 
@@ -123,7 +121,10 @@ export const getReviews = async (
 		const { query } = req;
 
 		/// Get all reviews for the product with filtering, sorting, and pagination
-		const features = new ApiFeatures(reviewModel.find({ product: productId }), query)
+		const features = new ApiFeatures(
+			reviewModel.find({ product: productId }),
+			query,
+		)
 			.limitFields()
 			.paginate();
 
