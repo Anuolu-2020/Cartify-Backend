@@ -12,24 +12,40 @@ const cartSchema = new Schema<ICart>(
 		products: [
 			{
 				productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-				quantity: {
+				units: {
 					type: Number,
-					required: [true, "Product quantity must be provided"],
+					required: [true, "Product units must be provided"],
 				},
 				name: {
 					type: String,
 					required: [true, "A product name must be provided"],
 				},
+				photo: {
+					type: String,
+					required: [true, "Product must have a photo"],
+				},
+
 				price: {
 					type: Number,
 					required: [true, "Product price is required"],
 					min: [0, "The minimum price shouldn't be below zero"],
+				},
+				discountPercentage: {
+					type: Number,
+					required: true,
+					min: 0,
+					max: 100,
 				},
 			},
 		],
 		totalPrice: {
 			type: Number,
 			min: [0, "The minimum price shouldn't be below zero"],
+			required: true,
+		},
+		totalDiscountedPrice: {
+			type: Number,
+			min: 0,
 			required: true,
 		},
 	},
