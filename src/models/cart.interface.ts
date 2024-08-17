@@ -5,17 +5,21 @@ export interface ICart extends Document {
 	products: [
 		{
 			productId: { type: mongoose.Types.ObjectId };
-			quantity: number;
+			units: number;
 			name: string;
+			photo: string;
 			price: number;
+			discountPercentage: number;
+			discountedPrice: number;
 		},
 	];
 	totalPrice: number;
+	totalDiscountedPrice: number;
 }
 
 export interface Item {
 	productId: { type: mongoose.Types.ObjectId };
-	quantity: number;
+	units: number;
 	name: string;
 	price: number;
 }
