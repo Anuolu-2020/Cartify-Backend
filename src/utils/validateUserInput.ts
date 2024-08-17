@@ -58,7 +58,7 @@ function validateAddToCart(cart: string) {
 			.regex(/^[0-9a-fA-F]{24}$/)
 			.message("must be an oid")
 			.required(),
-		quantity: Joi.number().min(1).required(),
+		units: Joi.number().min(1).required(),
 	});
 
 	return schema.validate(cart, joiOptions);
