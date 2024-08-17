@@ -36,7 +36,7 @@ const getAllProducts = async (
 			success: true,
 			results: product.length,
 			message: "Products fetched successfully",
-			payload: product,
+			payload: { product },
 		});
 	} catch (err) {
 		next(err);
@@ -71,7 +71,7 @@ const getProduct = async (
 		res.status(200).json({
 			success: true,
 			message: "Product fetched successfully",
-			payload: product,
+			payload: { product },
 		});
 	} catch (err) {
 		next(err);
@@ -114,7 +114,7 @@ const getVendorProducts = async (
 			success: true,
 			results: product.length,
 			message: "Your Products fetched successfully",
-			payload: product,
+			payload: { product },
 		});
 	} catch (err) {
 		next(err);
