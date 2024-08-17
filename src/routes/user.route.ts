@@ -10,8 +10,10 @@ import {
 	deleteUsers,
 	updateRole,
 } from "../controllers/user.controller";
+import { checkout } from "../controllers/checkout.controller";
 
 userRoute.route("/update-role").put(updateRole);
+userRoute.route("/checkout").get(checkout);
 
 userRoute.use(isRestrictedTo("admin"));
 
