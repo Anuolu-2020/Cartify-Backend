@@ -14,4 +14,6 @@ export interface IProducts extends Document {
 	vendorName: string;
 	vendorAddress: string;
 	units: number;
+	discountPercentage: number;
+	discountPrice: number;
 }
