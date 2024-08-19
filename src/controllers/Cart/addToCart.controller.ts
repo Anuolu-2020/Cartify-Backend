@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-
 import ProductModel from "../../models/product.model";
 import CartModel from "../../models/cart.model";
-
 import { errorHandler } from "../../utils/error.handler.class";
 import { validateAddToCart } from "../../utils/validateUserInput";
 import { IUser } from "../../models/user.interface";
@@ -17,7 +15,7 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
 	}
 
 	try {
-		const { productId, units } = req.body;
+		const { productId, quantity } = req.body;
 
 		//Get user from request object
 		const user = req.user as IUser;
@@ -35,15 +33,15 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
 			return next(new errorHandler(403, "Product out of stock"));
 		}
 
-		if (units > product.units) {
+		if (quantity > product.units) {
 			return next(new errorHandler(403, "Not enough product stock available"));
 		}
 
-		//Calculate product total price
-		const productPrice = product.price * units;
-
 		//Check if user already has a cart
 		let cart = await CartModel.findOne({ user: userId });
+
+		//Calculate price of product based on quantity in the cart
+		const productPrice = product.price * quantity;
 
 		//User already as a cart
 		if (cart) {
@@ -56,18 +54,18 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
 			if (itemIndex > -1) {
 				const productItem = cart.products[itemIndex];
 
-				productItem.units = units;
+				productItem.quantity = quantity;
 
 				productItem.price = productPrice;
 
-				//Get total price of all products
+				//Get total price of all products in the cart
 				cart.totalPrice = cart.products
 					.map((item) => item.price)
 					.reduce((acc, next) => acc + next);
 
-				// Get total discounted pice
+				// Get total discounted price in the cart
 				cart.totalDiscountedPrice = cart.products.reduce((acc, product) => {
-					return acc + product.discountedPrice * product.units;
+					return acc + product.discountedPrice * product.quantity;
 				}, 0);
 			} else {
 				//Add new product to cart
@@ -76,7 +74,7 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
 					name: product.name,
 					photo: product.photo,
 					price: productPrice,
-					units,
+					quantity,
 					discountPercentage: product.discountPercentage,
 					discountedPrice: product.discountPrice,
 				});
@@ -86,9 +84,9 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
 					.map((item) => item.price)
 					.reduce((acc, next) => acc + next);
 
-				// Get total discounted pice
+				// Get total discounted price
 				cart.totalDiscountedPrice = cart.products.reduce((acc, product) => {
-					return acc + product.discountedPrice * product.units;
+					return acc + product.discountedPrice * product.quantity;
 				}, 0);
 			}
 
@@ -99,10 +97,12 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
 		} else {
 			// Calculate discount price
 			const discountedPrice =
-				product.price * (1 - product.discountPercentage / 100);
+				product.price * (product.discountPercentage / 100);
 
 			//Calculate total discount price
-			const totalDiscountedPrice = discountedPrice * product.units;
+			const totalDiscountedPrice = discountedPrice * quantity;
+
+			const totalPrice = productPrice * quantity;
 
 			//User doesn't have a cart, Create a new cart
 			const newCart = await new CartModel({
@@ -113,12 +113,12 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
 						name: product.name,
 						price: productPrice,
 						photo: product.photo,
-						units,
+						quantity,
 						discountPercentage: product.discountPercentage,
 						discountedPrice,
 					},
 				],
-				totalPrice: productPrice,
+				totalPrice,
 				totalDiscountedPrice,
 			}).save();
 
