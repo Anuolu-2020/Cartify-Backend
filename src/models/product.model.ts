@@ -59,19 +59,23 @@ const productSchema = new Schema<IProducts>(
 );
 
 productSchema.virtual("averageRating").get(async function (this: IProducts) {
-	const productId = this._id;
+	try {
+		const productId = this._id;
+		const result = await reviewModel.aggregate([
+			{ $match: { product: productId } },
+			{ $group: { _id: "$product", averageRating: { $avg: "$rating" } } },
+		]);
 
-	const averageRating = await reviewModel.aggregate([
-		{ $match: { productId } },
-		{ $group: { _id: "$product", averageRating: { $avg: "$rating" } } },
-	]);
-
-	return averageRating.length > 0 ? averageRating[0]?.averageRating : 0;
+		return result.length > 0 ? Number(result[0].averageRating.toFixed(2)) : 0;
+	} catch (error) {
+		console.error("Error calculating average rating:", error);
+		return 0;
+	}
 });
 
 // Virtual property to calculate the discounted price
 productSchema.virtual("discountedPrice").get(function () {
-	return this.price * (1 - this.discountPercentage / 100);
+	return this.price * (this.discountPercentage / 100);
 });
 
 // Set the virtuals to be included in JSON and Object outputs
