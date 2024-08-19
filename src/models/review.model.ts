@@ -28,7 +28,7 @@ const reviewSchema = new Schema<IReview>({
 	timestamp: { type: Date, default: Date.now },
 });
 
-reviewSchema.index({ productId: 1, user: 1 }, { unique: true });
+reviewSchema.index({ product: 1, user: 1 }, { unique: true });
 
 reviewSchema.pre<Query<IReview, IReview>>(
 	/^find/,
