@@ -68,8 +68,14 @@ const uploadProduct = async (
 		// Get the image URL.
 		const downloadURL = await getDownloadURL(imageRef);
 
-		const { productName, productDetails, productPrice, category, units } =
-			req.body;
+		const {
+			productName,
+			productDetails,
+			productPrice,
+			category,
+			units,
+			discountPercentage,
+		} = req.body;
 
 		const vendor = req.user as IUser;
 
@@ -84,6 +90,7 @@ const uploadProduct = async (
 			price: productPrice,
 			category: category,
 			units: units,
+			discountPercentage,
 		}).save();
 
 		res.status(201).json({
