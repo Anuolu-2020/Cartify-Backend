@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import cartModel from "../../models/cart.model";
 import { IUser } from "../../models/user.interface";
+import { errorHandler } from "../../utils/error.handler.class";
+import { sendResponse } from "../../utils/response";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getCart = async (req: Request, res: Response, _: NextFunction) => {
+const getCart = async (req: Request, res: Response, next: NextFunction) => {
 	const user = req.user as IUser;
 
 	const userId = user._id;
@@ -11,17 +13,10 @@ const getCart = async (req: Request, res: Response, _: NextFunction) => {
 	const cart = await cartModel.find({ user: userId });
 
 	if (!cart || cart === null || cart.length === 0) {
-		return res.status(404).json({
-			success: true,
-			message: "User doesn't have a cart yet",
-		});
+		return next(new errorHandler(404, "User doesn't have a cart yet"));
 	}
 
-	res.status(200).json({
-		success: true,
-		message: "Fetched user cart successfully",
-		payload: { cart },
-	});
+	return sendResponse(res, 200, "Fetched user cart successfully", cart);
 };
 
 export { getCart };
