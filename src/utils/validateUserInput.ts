@@ -45,6 +45,7 @@ function validateProductUpload(product: object) {
 			"Books & Stationery",
 		),
 		units: Joi.number().min(1).required(),
+		discountPercentage: Joi.number().min(0).max(90).required(),
 	});
 
 	return schema.validate(product, joiOptions);
@@ -58,7 +59,7 @@ function validateAddToCart(cart: string) {
 			.regex(/^[0-9a-fA-F]{24}$/)
 			.message("must be an oid")
 			.required(),
-		units: Joi.number().min(1).required(),
+		quantity: Joi.number().min(1).required(),
 	});
 
 	return schema.validate(cart, joiOptions);
