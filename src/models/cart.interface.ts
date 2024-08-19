@@ -5,7 +5,7 @@ export interface ICart extends Document {
 	products: [
 		{
 			productId: { type: mongoose.Types.ObjectId };
-			units: number;
+			quantity: number;
 			name: string;
 			photo: string;
 			price: number;
@@ -19,7 +19,7 @@ export interface ICart extends Document {
 
 export interface Item {
 	productId: { type: mongoose.Types.ObjectId };
-	units: number;
+	quantity: number;
 	name: string;
 	price: number;
 }
