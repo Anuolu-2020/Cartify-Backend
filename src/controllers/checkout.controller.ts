@@ -44,36 +44,37 @@ export const checkout = async (
 	//If theres already a checkout
 	if (checkoutFound) {
 		// update checkout
-		const updatedCheckout = await CheckoutModel.updateOne(
-			userId,
+		const updatedCheckout = await CheckoutModel.findOneAndUpdate(
+			{ userId: userId },
 			{
 				products: cart.products,
 				totalPrice: cart.totalPrice,
 				shippingAddress: userFound.address,
 				totalDiscountedPrice: cart.totalDiscountedPrice,
 			},
-			{ runValidators: true },
+			{ new: true, runValidators: true },
 		);
 
 		const data = {
-			...updatedCheckout,
+			...updatedCheckout.toObject(),
 			grandTotal,
 		};
 
 		return sendResponse(res, 200, "Checkout data fetched successfully", data);
 	}
 
+	
 	const checkout = await CheckoutModel.create({
 		userId,
 		products: cart.products,
 		totalPrice: cart.totalPrice,
-		shippingAdress: userFound.address,
-		deliveryFee,
 		totalDiscountedPrice: cart.totalDiscountedPrice,
+		shippingAddress: userFound.address,
+		deliveryFee,
 	});
 
 	const data = {
-		...checkout,
+		...checkout.toObject(),
 		grandTotal,
 	};
 
