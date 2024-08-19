@@ -5,6 +5,7 @@ import { errorHandler } from "../utils/error.handler.class";
 import cartModel from "../models/cart.model";
 import { userModel } from "../models/user.model";
 import { CheckoutModel } from "../models/checkout.model";
+import { sendResponse } from "../utils/response";
 
 export const checkout = async (
 	req: Request,
@@ -27,16 +28,40 @@ export const checkout = async (
 		return next(new errorHandler(404, "User not found"));
 	}
 
-	const cart = await cartModel.findById({ user: userId });
+	const cart = await cartModel.findOne({ user: userId });
 
 	if (!cart) {
 		return next(new errorHandler(404, "User doesn't have a cart"));
 	}
 
+	const checkoutFound = await CheckoutModel.findOne({ userId });
+
 	//Hard coded for now
 	const deliveryFee = 600;
 
 	const grandTotal = cart.totalPrice - cart.totalDiscountedPrice + deliveryFee;
+
+	//If theres already a checkout
+	if (checkoutFound) {
+		// update checkout
+		const updatedCheckout = await CheckoutModel.updateOne(
+			userId,
+			{
+				products: cart.products,
+				totalPrice: cart.totalPrice,
+				shippingAddress: userFound.address,
+				totalDiscountedPrice: cart.totalDiscountedPrice,
+			},
+			{ runValidators: true },
+		);
+
+		const data = {
+			...updatedCheckout,
+			grandTotal,
+		};
+
+		return sendResponse(res, 200, "Checkout data fetched successfully", data);
+	}
 
 	const checkout = await CheckoutModel.create({
 		userId,
@@ -52,9 +77,5 @@ export const checkout = async (
 		grandTotal,
 	};
 
-	return res.status(200).json({
-		success: false,
-		message: "Checkout data fetched successfully",
-		payload: { data },
-	});
+	return sendResponse(res, 200, "Checkout data fetched successfully", data);
 };
