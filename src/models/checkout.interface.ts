@@ -12,9 +12,11 @@ interface Product {
 
 export interface ICheckout extends Document {
 	userId: ObjectId;
+	email: string;
 	products: Product[];
 	totalPrice: number;
 	totalDiscountedPrice: number;
 	shippingAddress: string;
 	deliveryFee: number;
+	grandTotal: number;
 }

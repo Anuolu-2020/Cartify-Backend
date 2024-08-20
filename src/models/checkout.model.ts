@@ -9,6 +9,10 @@ const checkoutSchema = new Schema<ICheckout>({
 		ref: "Users",
 		required: true,
 	},
+	email: {
+		type: String,
+		required: true,
+	},
 	products: [
 		{
 			productId: {
@@ -47,6 +51,10 @@ const checkoutSchema = new Schema<ICheckout>({
 		required: true,
 	},
 	deliveryFee: {
+		type: Number,
+		required: true,
+	},
+	grandTotal: {
 		type: Number,
 		required: true,
 	},
