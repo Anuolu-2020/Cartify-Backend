@@ -12,6 +12,7 @@ interface Product {
 
 export interface IOrder extends Document {
 	userId: ObjectId;
+	email: string;
 	products: Product[];
 	totalPrice: number;
 	paymentMethod: string;
@@ -21,5 +22,6 @@ export interface IOrder extends Document {
 	deliveryDate?: Date;
 	orderStatus: "pending" | "shipped" | "delivered" | "canceled";
 	trackingNumber?: string;
-	discount?: number;
+	totalDiscountedPrice: number;
+	grandTotal: number;
 }

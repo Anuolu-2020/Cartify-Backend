@@ -9,6 +9,10 @@ const orderSchema = new Schema<IOrder>({
 		ref: "Users",
 		required: true,
 	},
+	email: {
+		type: String,
+		required: true,
+	},
 	products: [
 		{
 			productId: {
@@ -28,6 +32,10 @@ const orderSchema = new Schema<IOrder>({
 				type: Number,
 				required: true,
 			},
+			discountedPrice: {
+				type: Number,
+				required: true,
+			},
 		},
 	],
 	totalPrice: {
@@ -36,6 +44,7 @@ const orderSchema = new Schema<IOrder>({
 	},
 	paymentMethod: {
 		type: String,
+		enum: ["paystack"],
 		required: true,
 	},
 	paymentStatus: {
@@ -63,8 +72,13 @@ const orderSchema = new Schema<IOrder>({
 	trackingNumber: {
 		type: String,
 	},
-	discount: {
+	totalDiscountedPrice: {
 		type: Number,
+		required: true,
+	},
+	grandTotal: {
+		type: Number,
+		required: true,
 	},
 });
 
