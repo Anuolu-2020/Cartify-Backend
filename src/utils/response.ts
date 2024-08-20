@@ -4,11 +4,11 @@ export function sendResponse(
 	res: Response,
 	statusCode: number,
 	msg: string,
-	data: unknown,
+	data: object,
 ) {
 	res.status(statusCode).json({
 		success: true,
 		message: msg,
-		payload: { data },
+		payload: { ...data },
 	});
 }
