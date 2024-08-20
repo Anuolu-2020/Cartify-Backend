@@ -112,6 +112,12 @@ function validateProductReview(review: object) {
 	return schema.validate(review, joiOptions);
 }
 
+function validateOrder(paymentMethod: string) {
+	const schema = Joi.string().valid("paystack").required();
+
+	return schema.validate(paymentMethod, joiOptions);
+}
+
 export {
 	validateEmailPasswordInput,
 	validateSignUpInput,
@@ -122,4 +128,5 @@ export {
 	validateProductId,
 	validateProductReview,
 	validateUserId,
+	validateOrder,
 };
