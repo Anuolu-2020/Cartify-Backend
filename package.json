@@ -16,6 +16,7 @@
 		"types": "typesync"
 	},
 	"dependencies": {
+		"@paralleldrive/cuid2": "^2.2.2",
 		"@types/node": "^20.11.30",
 		"axios": "^1.6.8",
 		"bcrypt": "^5.1.1",
