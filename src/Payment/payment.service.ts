@@ -1,3 +1,4 @@
+import { Response } from "express";
 import { IOrder } from "../models/order.interface";
 import { PAYMENT_METHOD, PaymentGateway } from "./payment.gateway";
 
@@ -11,11 +12,15 @@ export class PaymentService {
 		this.paymentGateways[paymentMethod] = paymentGateway;
 	}
 
-	public async processPayment(order: IOrder, paymentMethod: PAYMENT_METHOD) {
+	public async processPayment(
+		order: IOrder,
+		paymentMethod: PAYMENT_METHOD,
+		res: Response,
+	) {
 		const gateway = this.paymentGateways[paymentMethod];
 
 		if (gateway) {
-			await gateway.processPayment(order);
+			await gateway.processPayment(order, res);
 		} else {
 			throw new Error("Payment method not supported");
 		}
