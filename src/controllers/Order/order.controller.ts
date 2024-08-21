@@ -6,7 +6,7 @@ import { CheckoutModel } from "../../models/checkout.model";
 import { OrderModel } from "../../models/order.model";
 import { PaymentService } from "../../Payment/payment.service";
 import { PAYMENT_METHOD, PaystackGateway } from "../../Payment/payment.gateway";
-//import { createId } from "@paralleldrive/cuid2";
+import { createId } from "@paralleldrive/cuid2";
 
 export const createOrder = async (
 	req: Request,
@@ -30,41 +30,52 @@ export const createOrder = async (
 		const errorMessage = validation2.error.details[0].message.replace(/"/g, "");
 		return next(new errorHandler(400, errorMessage));
 	}
+	try {
+		const checkout = await CheckoutModel.findOne({ userId });
 
-	const checkout = await CheckoutModel.findOne({ userId });
+		if (!checkout) {
+			return next(new errorHandler(404, "No checkout found for user."));
+		}
 
-	if (!checkout) {
-		return next(new errorHandler(404, "No checkout found for user."));
+		const currentDate = new Date(); // Current date and time
+		const orderDate = new Date(currentDate.getTime());
+
+		// Deliver in two days. Hardcoded for now.
+		const deliveryDate = new Date(
+			currentDate.getTime() + 2 * 24 * 60 * 60 * 1000,
+		); // Add 2 days in milliseconds
+
+		const paymentReferenceCode = createId();
+
+		const newOrder = await OrderModel.create({
+			userId: checkout.userId,
+			email: checkout.email,
+			products: checkout.products,
+			totalPrice: checkout.totalPrice,
+			totalDiscountedPrice: checkout.totalDiscountedPrice,
+			paymentMethod,
+			paymentStatus: "pending",
+			shippingAddress: checkout.shippingAddress,
+			orderDate,
+			deliveryDate,
+			paymentReferenceCode,
+			grandTotal: checkout.grandTotal,
+		});
+
+		const paymentService = new PaymentService();
+
+		paymentService.registerGateway(
+			PAYMENT_METHOD.PAYSTACK,
+			new PaystackGateway(),
+		);
+
+		return await paymentService.processPayment(
+			newOrder,
+			PAYMENT_METHOD.PAYSTACK,
+			res,
+		);
+	} catch (err) {
+		console.error(err);
+		return next(new errorHandler(500, err));
 	}
-
-	const currentDate = new Date(); // Current date and time
-	const orderDate = new Date(currentDate.getTime());
-
-	// Deliver in two days. Hardcoded for now.
-	const deliveryDate = new Date(
-		currentDate.getTime() + 2 * 24 * 60 * 60 * 1000,
-	); // Add 2 days in milliseconds
-
-	const newOrder = await OrderModel.create({
-		userId: checkout.userId,
-		email: checkout.email,
-		products: checkout.products,
-		totalPrice: checkout.totalPrice,
-		totalDiscountedPrice: checkout.totalDiscountedPrice,
-		paymentMethod,
-		paymentStatus: "pending",
-		shippingAddress: checkout.shippingAddress,
-		orderDate,
-		deliveryDate,
-		grandTotal: checkout.grandTotal,
-	});
-
-	const paymentService = new PaymentService();
-
-	paymentService.registerGateway(
-		PAYMENT_METHOD.PAYSTACK,
-		new PaystackGateway(),
-	);
-
-	await paymentService.processPayment(newOrder, PAYMENT_METHOD.PAYSTACK);
 };
