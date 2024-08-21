@@ -26,6 +26,8 @@ import { router as vendorRoute } from "./routes/Products/vendor.route";
 import { router as cartRoute } from "./routes/Cart/cart.route";
 import { router as reviewRoute } from "./routes/Review/review.route";
 
+import { paymentRoute } from "./routes/paymentWebhook.route";
+
 const app = express();
 
 dotenv.config();
@@ -33,8 +35,18 @@ dotenv.config();
 //CORS
 app.use(
 	cors({
-		origin: [
-			"http://localhost:5500",
+		origin: "*",
+		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		credentials: true,
+	}),
+);
+
+if (process.env.NODE_ENV === "development") {
+	app.set("trust proxy", true);
+}
+
+/*[
+			"http://localhost:5555",
 			"http://localhost:3000",
 			"https://localhost:5500",
 			"https://localhost:3000",
@@ -43,11 +55,7 @@ app.use(
 			"http://localhost:8080",
 			"127.0.0.1:8000:8000",
 		],
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		credentials: true,
-	}),
-);
-
+*/
 app.use(express.json());
 
 // Parse urlencoded request bodies into req.body
@@ -102,6 +110,9 @@ app.use("/api/v:version/vendor", checkApiVersion, isAuthenticated, vendorRoute);
 
 //USER'S ROUTES
 app.use("/api/v:version/users", checkApiVersion, isAuthenticated, userRoute);
+
+//PAYMENT ROUTE
+app.use("/api/v:version/payment", checkApiVersion, paymentRoute);
 
 //REVIEW ROUTES
 app.use(
