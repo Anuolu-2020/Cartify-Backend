@@ -21,7 +21,8 @@ export interface IOrder extends Document {
 	orderDate: Date;
 	deliveryDate?: Date;
 	orderStatus: "pending" | "shipped" | "delivered" | "canceled";
-	trackingNumber?: string;
+	paymentReferenceCode: string;
+	orderTrackingId?: string;
 	totalDiscountedPrice: number;
 	grandTotal: number;
 }
