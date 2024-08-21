@@ -10,6 +10,7 @@ import productModel from "../../models/product.model";
 import { ApiFeatures } from "../../utils/ApiFeatures";
 import { ReqQuery, productParams } from "../../types/requestQuery.interface";
 import { IUser } from "../../models/user.interface";
+import { OrderModel } from "../../models/order.model";
 
 export const addReview = async (
 	req: Request,
@@ -65,6 +66,21 @@ export const addReview = async (
 				success: false,
 				message: "Product not found",
 			});
+		}
+
+		const order = await OrderModel.findOne({
+			userId,
+			products: { productId },
+			orderStatus: "delivered",
+		});
+
+		if (!order) {
+			return next(
+				new errorHandler(
+					403,
+					"You can't review this product because you did not purchase it",
+				),
+			);
 		}
 
 		// Check if the user has already reviewed the product
