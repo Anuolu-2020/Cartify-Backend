@@ -1,14 +1,16 @@
+import { Response } from "express";
 import { IOrder } from "../models/order.interface";
 
 export abstract class PaymentGateway {
-	async processPayment(order: IOrder) {}
+	async processPayment(order: IOrder, res: Response) {}
 }
 
 export class PaystackGateway implements PaymentGateway {
-	private async initializeTransaction(order: IOrder) {
+	private async initializeTransaction(order: IOrder, res: Response) {
 		const params = {
 			email: order.email,
-			amount: order.grandTotal,
+			amount: order.grandTotal * 100, //Multiply by 100 to convert amount n naira to kobo
+			reference: order.paymentReferenceCode,
 		};
 
 		try {
@@ -24,16 +26,20 @@ export class PaystackGateway implements PaymentGateway {
 				},
 			);
 
-			const data = await response.json();
-			console.log(data);
-			return data;
+			const payload = await response.json();
+
+			//const parsedPayload = JSON.parse(payload);
+
+			console.log(payload["data"].authorization_url);
+			// Redirect user to payment page
+			res.redirect(payload["data"].authorization_url);
 		} catch (error) {
 			console.error("Error:", error);
 		}
 	}
 
-	async processPayment(order: IOrder) {
-		const payload = await this.initializeTransaction(order);
+	async processPayment(order: IOrder, res: Response) {
+		await this.initializeTransaction(order, res);
 	}
 }
 
