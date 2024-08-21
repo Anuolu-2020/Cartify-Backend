@@ -69,7 +69,11 @@ const orderSchema = new Schema<IOrder>({
 		enum: ["pending", "shipped", "delivered", "canceled"],
 		default: "pending",
 	},
-	trackingNumber: {
+	paymentReferenceCode: {
+		type: String,
+		required: true,
+	},
+	orderTrackingId: {
 		type: String,
 	},
 	totalDiscountedPrice: {
