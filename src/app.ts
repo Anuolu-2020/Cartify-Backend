@@ -28,6 +28,9 @@ import { router as reviewRoute } from "./routes/Review/review.route";
 
 import { paymentRoute } from "./routes/paymentWebhook.route";
 
+//SENTRY
+import * as Sentry from "@sentry/node";
+
 const app = express();
 
 dotenv.config();
@@ -114,6 +117,11 @@ app.use("/api/v:version/users", checkApiVersion, isAuthenticated, userRoute);
 //PAYMENT ROUTE
 app.use("/api/v:version/payment", checkApiVersion, paymentRoute);
 
+//SENTRY
+app.use("/api/v:version/debug-sentry", checkApiVersion, (req, res) => {
+	throw new Error("My first Sentry error!");
+});
+
 //REVIEW ROUTES
 app.use(
 	"/api/v:version/reviews",
@@ -129,6 +137,9 @@ app.all("*", (_, res) => {
 		success: false,
 	});
 });
+
+//Register sentry
+Sentry.setupExpressErrorHandler(app);
 
 //GLOBAL ERROR HANDLER MIDDLEWARE
 app.use(globalErrorMiddleware);
