@@ -32,4 +32,3 @@ export const isAuthenticated = async (
 
 	next();
 };
-//
