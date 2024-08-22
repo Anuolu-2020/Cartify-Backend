@@ -70,6 +70,7 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
 			} else {
 				//Add new product to cart
 				cart.products.push({
+					vendor: product.vendor,
 					productId,
 					name: product.name,
 					photo: product.photo,
@@ -109,6 +110,7 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
 				user: userId,
 				products: [
 					{
+						vendor: product.vendor,
 						productId,
 						name: product.name,
 						price: productPrice,
