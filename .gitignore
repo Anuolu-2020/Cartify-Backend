@@ -3,3 +3,8 @@ node_modules
 .vscode
 .cert
 node_modules
+build
+
+# Sentry Config File
+.sentryclirc
+
