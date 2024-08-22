@@ -3,6 +3,6 @@ import { paymentWebhook } from "../controllers/payment.webhook";
 
 const paymentRoute = express.Router();
 
-paymentRoute.route("/transaction/webhook").post(paymentWebhook);
+paymentRoute.route("/transaction/paystack-webhook").post(paymentWebhook);
 
 export { paymentRoute };
