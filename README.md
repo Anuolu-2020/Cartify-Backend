@@ -20,9 +20,9 @@ Welcome to Cartify Backend! This repository contains the backend codebase for Ca
 - **Authentication:** Paseto tokens
 - **Bucket:** Firebase Storage
 - **Deployment:** Render with Docker
-- **Payments** Paystack
-- **Error Tracking** Sentry
-- **Email Gateway Provider** Mailgun
+- **Payments:** Paystack
+- **Error Tracking:** Sentry
+- **Email Gateway Provider:** Mailgun
 
 ## Getting Started
 
@@ -36,13 +36,13 @@ To get started with Cartify Backend, follow these steps:
 2. **Install Dependencies:** 
 
 ``` bash
-cd cartify-backend
-npm install
+    cd cartify-backend
+    npm install
 ```
 3. **Build Project:** 
 
 ``` bash
-npm run build
+    npm run build
 ```
 
 4. **Set Environment Variables:**
@@ -50,9 +50,9 @@ npm run build
 
 5. **Run the Server:**
  ``` bash
-  npm run start:dev #development mode
+    npm run start:dev #development mode
   
-  npm run start:prod #production mode
+    npm run start:prod #production mode
 ```
 6. **Testing:**
 Use tools like Postman to test the APIs. Refer to the API documentation for available endpoints and request/response formats. **(Coming Soon)**
