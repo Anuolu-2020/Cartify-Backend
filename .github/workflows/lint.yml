@@ -20,6 +20,11 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
-
+      
+      - name: Build project
+        run: npm run build
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        
       - name: Run ESLint
         run: npm run lint
