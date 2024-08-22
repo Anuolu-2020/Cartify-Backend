@@ -1,11 +1,12 @@
 import dotenv from "dotenv";
 import { AuthenticationStrategy } from "../../Auth/authentication";
 import { NextFunction, Request, Response } from "express";
+import { EmailService } from "../../email/email.service";
 
 dotenv.config();
 
 //passport authentication strategies
-const authService = new AuthenticationStrategy();
+const authService = new AuthenticationStrategy(new EmailService());
 
 //Controller for google signup/signIn route
 async function handleGoogle(req: Request, res: Response, next: NextFunction) {
