@@ -7,6 +7,7 @@ import { CheckoutModel } from "../models/checkout.model";
 import cartModel from "../models/cart.model";
 import { userModel } from "../models/user.model";
 import productModel from "../models/product.model";
+import { EmailService } from "../email/email.service";
 
 export const paymentWebhook = async (
 	req: Request,
@@ -56,11 +57,22 @@ export const paymentWebhook = async (
 		if (event.event === "charge.success") {
 			await runInTransaction(async (session) => {
 				//Update order model
-				await OrderModel.findOneAndUpdate(
+				const order = await OrderModel.findOneAndUpdate(
 					{ email: userEmail, paymentReferenceCode },
 					{ paymentStatus: "completed", orderTrackingId },
 					{ session },
 				);
+
+				const emailService = new EmailService();
+
+				// Send payment confirmation mail
+				await emailService.sendSuccessfulOrderMail(userEmail, {
+					orderId: order._id,
+					username: user.username,
+					trackingId: orderTrackingId,
+					totalAmount: order.grandTotal,
+					deliveryDate: order.deliveryDate,
+				});
 
 				// Delete checkout
 				await CheckoutModel.findOneAndDelete({ email: userEmail }, { session });
@@ -97,7 +109,7 @@ export const paymentWebhook = async (
 			});
 			return;
 		} else {
-			//Update order model
+			//Order failed, Update order model
 			await OrderModel.findOneAndUpdate(
 				{ email: userEmail, paymentReferenceCode },
 				{ paymentStatus: "failed", orderTrackingId },
