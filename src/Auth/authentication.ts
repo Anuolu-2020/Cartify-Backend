@@ -11,9 +11,10 @@ import { userModel } from "../models/user.model";
 import { GoogleOauthBody } from "./interface/googleOauth.interface";
 import { NextFunction, Request, Response } from "express";
 import { signToken } from "../utils/pasetoToken";
+import { EmailService } from "../email/email.service";
 
 export class AuthenticationStrategy {
-	constructor() {
+	constructor(private readonly emailService: EmailService) {
 		dotenv.config();
 	}
 
@@ -52,7 +53,10 @@ export class AuthenticationStrategy {
 				delete userObj.password;
 
 				//Sign token
-				const accesstoken = await signToken({ _id: user._id, role: user.role }, next);
+				const accesstoken = await signToken(
+					{ _id: user._id, role: user.role },
+					next,
+				);
 				console.log(`Paseto token is ${accesstoken}`);
 				//Sign user in
 				return { ...userObj, accesstoken };
@@ -79,6 +83,11 @@ export class AuthenticationStrategy {
 			const accesstoken = await signToken({ _id: savedUser._id }, next);
 
 			console.log("user signed in with google");
+
+			await this.emailService.sendWelcomeMail(
+				savedUser.email,
+				savedUser.username,
+			);
 
 			return { ...userObj, accesstoken };
 		} catch (err) {
