@@ -118,6 +118,15 @@ function validateOrder(paymentMethod: string) {
 	return schema.validate(paymentMethod, joiOptions);
 }
 
+function validateAcceptOrder(orderStatus: string) {
+	// Validate user request inputs, min password length is 8
+	const schema = Joi.string()
+		.valid("pending", "shipped", "delivered", "canceled")
+		.required();
+
+	return schema.validate(orderStatus, joiOptions);
+}
+
 export {
 	validateEmailPasswordInput,
 	validateSignUpInput,
@@ -129,4 +138,5 @@ export {
 	validateProductReview,
 	validateUserId,
 	validateOrder,
+	validateAcceptOrder,
 };
