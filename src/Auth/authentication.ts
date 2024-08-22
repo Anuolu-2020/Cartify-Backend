@@ -57,7 +57,7 @@ export class AuthenticationStrategy {
 					{ _id: user._id, role: user.role },
 					next,
 				);
-				console.log(`Paseto token is ${accesstoken}`);
+
 				//Sign user in
 				return { ...userObj, accesstoken };
 			}
