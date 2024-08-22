@@ -11,7 +11,12 @@ const cartSchema = new Schema<ICart>(
 		},
 		products: [
 			{
-				productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+				vendor: { type: mongoose.Types.ObjectId, ref: "Users", required: true },
+				productId: {
+					type: mongoose.Types.ObjectId,
+					ref: "Products",
+					required: true,
+				},
 				quantity: {
 					type: Number,
 					required: [true, "Product units must be provided"],
