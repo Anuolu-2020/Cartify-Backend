@@ -15,6 +15,11 @@ const orderSchema = new Schema<IOrder>({
 	},
 	products: [
 		{
+			vendor: {
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Users",
+				required: true,
+			},
 			productId: {
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "Products",
