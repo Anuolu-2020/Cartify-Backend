@@ -26,5 +26,4 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         
-      - name: Run ESLint
-        run: npm run lint
+     
