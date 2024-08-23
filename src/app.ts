@@ -31,6 +31,10 @@ import { paymentRoute } from "./routes/paymentWebhook.route";
 //SENTRY
 import * as Sentry from "@sentry/node";
 
+//SWAGGER
+import * as swaggerUi from "swagger-ui-express";
+import swaggerJsDoc from "swagger-jsdoc";
+
 const app = express();
 
 dotenv.config();
@@ -81,6 +85,27 @@ const limiter = rateLimit({
 		sendCommand: (...args: string[]) => redisClient.sendCommand(args),
 	}),
 });
+
+// Swagger setup
+const swaggerOptions = {
+	swaggerDefinition: {
+		myapi: "3.0.0",
+		info: {
+			title: "My API",
+			version: "1.0.0",
+			description: "API documentation",
+		},
+		servers: [
+			{
+				url: "http://localhost:8000",
+			},
+		],
+	},
+	apis: ["./routes/*.ts"], // files containing annotations as above
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 //RATE LIMITER
 app.use(limiter);
