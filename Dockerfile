@@ -8,10 +8,7 @@ RUN npm install
 
 COPY . .
 
-ARG SENTRY_AUTH_TOKEN
-ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
-
-RUN npm run build
+RUN --mount=type=secret,id=sentry_auth_token npm run build
 
 EXPOSE 8000
 
