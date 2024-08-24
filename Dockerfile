@@ -8,10 +8,10 @@ RUN npm install
 
 COPY . .
 
-RUN --mount=type=secret,id=sentry_auth_token npm run build
+RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
+    cat /run/secrets/SENTRY_AUTH_TOKEN && \
+    npm run build
 
 EXPOSE 8000
 
 CMD ["npm", "run", "start:prod"]
-
-

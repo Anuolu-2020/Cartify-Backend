@@ -41,4 +41,4 @@ jobs:
           tags: anuolu1645/cartify:latest
           platforms: linux/amd64
           secrets: |
-            "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}" 
+            "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}" 
