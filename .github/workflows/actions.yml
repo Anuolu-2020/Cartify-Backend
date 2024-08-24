@@ -37,10 +37,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: 
-            - linux/amd64
           push: true
           tags: anuolu1645/cartify:latest
+          platforms: linux/amd64
           build-args: |
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
           env:
