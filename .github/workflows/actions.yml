@@ -40,7 +40,5 @@ jobs:
           push: true
           tags: anuolu1645/cartify:latest
           platforms: linux/amd64
-          build-args: |
-            "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}"
           secrets: |
-            "SENTRY_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}" 
+            "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}" 
