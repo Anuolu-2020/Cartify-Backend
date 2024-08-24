@@ -89,19 +89,38 @@ const limiter = rateLimit({
 // Swagger setup
 const swaggerOptions = {
 	swaggerDefinition: {
-		myapi: "3.0.0",
+		openapi: "3.0.0",
 		info: {
-			title: "My API",
+			title: "Cartify API",
 			version: "1.0.0",
 			description: "API documentation",
 		},
 		servers: [
 			{
 				url: "http://localhost:8000",
+				description: "Local development server",
+			},
+			{
+				url: "https://cartify-api.onrender.com",
+				description: "Production server",
+			},
+		],
+		components: {
+			securitySchemes: {
+				BearerAuth: {
+					type: "http",
+					scheme: "bearer",
+					bearerFormat: "PASETO",
+				},
+			},
+		},
+		security: [
+			{
+				BearerAuth: [], // Apply the security scheme globally
 			},
 		],
 	},
-	apis: ["./routes/*.ts"], // files containing annotations as above
+	apis: ["./src/app.ts", "./src/routes/**/*.ts", "./src/middlewares/*.ts"], // files containing annotations as above
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -122,23 +141,65 @@ app.use(compression());
 //For logging
 app.use(logger());
 
+/**
+ * @swagger
+ * tags:
+ *   name: Welcome
+ *   description: Welcome route
+ */
 app.get("/api/v:version", checkApiVersion, welcomeToApi);
 
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: Authentication routes
+ */
 //AUTH ROUTES
 app.use("/api/v:version/auth", checkApiVersion, authRoute);
 
+/**
+ * @swagger
+ * tags:
+ *   name: Products
+ *   description: Product management routes
+ */
 //PRODUCT ROUTES
 app.use("/api/v:version/products", checkApiVersion, productRoute);
 
+/**
+ * @swagger
+ * tags:
+ *   name: Cart
+ *   description: Cart management routes
+ */
 //CART ROUTES
 app.use("/api/v:version/carts", checkApiVersion, isAuthenticated, cartRoute);
 
+/**
+ * @swagger
+ * tags:
+ *   name: Vendor
+ *   description: Vendor management routes
+ */
 //VENDOR ROUTES
 app.use("/api/v:version/vendor", checkApiVersion, isAuthenticated, vendorRoute);
 
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management routes
+ */
 //USER'S ROUTES
 app.use("/api/v:version/users", checkApiVersion, isAuthenticated, userRoute);
 
+/**
+ * @swagger
+ * tags:
+ *   name: Payment
+ *   description: Payment related routes
+ */
 //PAYMENT ROUTE
 app.use("/api/v:version/payment", checkApiVersion, paymentRoute);
 
@@ -147,6 +208,12 @@ app.use("/api/v:version/debug-sentry", checkApiVersion, (req, res) => {
 	throw new Error("My first Sentry error!");
 });
 
+/**
+ * @swagger
+ * tags:
+ *   name: Reviews
+ *   description: Review related routes
+ */
 //REVIEW ROUTES
 app.use(
 	"/api/v:version/reviews",
