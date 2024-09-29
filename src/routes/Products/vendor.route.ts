@@ -34,9 +34,24 @@ router.use(isRestrictedTo("vendor", "admin"));
  *           schema:
  *             type: object
  *             properties:
+ *               productName: 
+ *                 type: string
+ *                 format: text
+ *               productDetails:
+ *                 type: string
+ *                 format: text
+ *               productPrice:
+ *                 type: number
+ *               category:
+ *                 type: string
+ *               units:
+ *                 type: number
  *               productImage:
  *                 type: string
  *                 format: binary
+ *               discountPercentage:
+ *                 type: number
+ *                 
  *     responses:
  *       201:
  *         description: Product uploaded successfully
