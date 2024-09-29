@@ -34,7 +34,7 @@ router.use(isRestrictedTo("vendor", "admin"));
  *           schema:
  *             type: object
  *             properties:
- *               productName: 
+ *               productName:
  *                 type: string
  *                 format: text
  *               productDetails:
@@ -44,6 +44,14 @@ router.use(isRestrictedTo("vendor", "admin"));
  *                 type: number
  *               category:
  *                 type: string
+ *                 enum:
+ *                   - "Electronics & Gadgets"
+ *                   - "Fashion & Apparel"
+ *                   - "Health & Beauty"
+ *                   - "Home & Kitchen"
+ *                   - "Sports & Outdoors"
+ *                   - "Toys & Games"
+ *                   - "Books & Stationery"
  *               units:
  *                 type: number
  *               productImage:
@@ -51,7 +59,7 @@ router.use(isRestrictedTo("vendor", "admin"));
  *                 format: binary
  *               discountPercentage:
  *                 type: number
- *                 
+ *
  *     responses:
  *       201:
  *         description: Product uploaded successfully
