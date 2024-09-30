@@ -1,12 +1,25 @@
-import { validateIds } from "../../utils/validateUserInput";
-import productModel from "../../models/product.model";
-import { errorHandler } from "../../utils/error.handler.class";
+import { NextFunction, Request, Response } from "express";
+import { deleteObject, ref } from "firebase/storage";
 import bucketStorage from "../../config/firebase.config";
-import { ref, deleteObject } from "firebase/storage";
-import { Request, Response, NextFunction } from "express";
-import { Iproducts, IDeleteResult } from "./product.interface";
+import productModel from "../../models/product.model";
 import { IUser } from "../../models/user.interface";
 import { productParams } from "../../types/requestQuery.interface";
+import { errorHandler } from "../../utils/error.handler.class";
+import { validateIds } from "../../utils/validateUserInput";
+import { IDeleteResult, Iproducts } from "./product.interface";
+
+async function deleteImagesFromFirebase(fileUrl: string) {
+	const fileRef = ref(bucketStorage, fileUrl);
+
+	await deleteObject(fileRef)
+		.then(() => {
+			console.log("File deleted Successfully");
+		})
+		.catch((err) => {
+			console.log(err);
+			throw err;
+		});
+}
 
 // Delete a vendor's products
 const deleteVendorProducts = async (
@@ -37,11 +50,7 @@ const deleteVendorProducts = async (
 
 		//Delete the product pictures
 		products.forEach(async (product: Iproducts) => {
-			const fileRef = ref(bucketStorage, product.photo);
-
-			await deleteObject(fileRef).then(() => {
-				console.log("File deleted Successfully");
-			});
+			await Promise.all(product.photo.map(deleteImagesFromFirebase));
 		});
 
 		const vendor = req.user as IUser;
