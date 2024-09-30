@@ -11,12 +11,16 @@ import deleteVendorProducts from "../../controllers/Products/deleteProducts";
 import { isRestrictedTo } from "../../middlewares/roleAuth.middleware";
 import { getVendorOrders } from "../../controllers/vendor/getOrders.controller";
 import { acceptOrder } from "../../controllers/vendor/acceptOrder.controller";
+import { handleMulterError } from "../../utils/multerErrorHandler";
 
 // Setting up multer as a middleware to grab photo uploads
 const storage = multer.memoryStorage();
 
 // Multer filter to check if the file is an image
-const upload = multer({ storage: storage });
+const upload = multer({
+	storage: storage,
+	limits: { fileSize: 1 * 1024 * 1024 },
+});
 
 router.use(isRestrictedTo("vendor", "admin"));
 
@@ -24,24 +28,31 @@ router.use(isRestrictedTo("vendor", "admin"));
  * @swagger
  * /api/v{version}/vendor/product:
  *   post:
- *     summary: Upload a product
+ *     summary: Upload a product with multiple images
  *     tags: [Vendor]
- *     description: Allows a vendor to upload a new product.
+ *     description: Allows a vendor to upload a new product with up to 3 images.
  *     requestBody:
  *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required:
+ *               - productName
+ *               - productDetails
+ *               - productPrice
+ *               - category
+ *               - units
  *             properties:
  *               productName:
  *                 type: string
- *                 format: text
+ *                 description: Name of the product
  *               productDetails:
  *                 type: string
- *                 format: text
+ *                 description: Detailed description of the product
  *               productPrice:
  *                 type: number
+ *                 description: Price of the product
  *               category:
  *                 type: string
  *                 enum:
@@ -52,21 +63,75 @@ router.use(isRestrictedTo("vendor", "admin"));
  *                   - "Sports & Outdoors"
  *                   - "Toys & Games"
  *                   - "Books & Stationery"
+ *                 description: Category of the product
  *               units:
- *                 type: number
+ *                 type: integer
+ *                 description: Number of units available
  *               productImage:
- *                 type: string
- *                 format: binary
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 maxItems: 3
+ *                 description: Up to 3 images of the product (max 1MB each)
  *               discountPercentage:
  *                 type: number
- *
+ *                 description: Discount percentage for the product (optional)
  *     responses:
  *       201:
  *         description: Product uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Product uploaded successfully
+ *                 payload:
+ *                   type: object
+ *                   properties:
+ *                     newProduct:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: 60d5ecb74f52e
+ *                         name:
+ *                           type: string
+ *                           example: Smartphone X
+ *                         photo:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                           example:
+ *                             - "https://firebasestorage.url/image1.jpg"
+ *                             - "https://firebasestorage.url/image2.jpg"
+ *                         # Add other product properties here
  *       400:
- *         description: Invalid product data
+ *         description: Invalid product data or file upload error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: File is too large. Max size is 1MB.
+ *       401:
+ *         description: Unauthorized - User is not a vendor or admin
+ *       500:
+ *         description: Server error
  */
-router.route("/product").post(upload.single("productImage"), uploadProduct);
+router
+	.route("/product")
+	.post(upload.array("productImage", 3), handleMulterError, uploadProduct);
 
 /**
  * @swagger
