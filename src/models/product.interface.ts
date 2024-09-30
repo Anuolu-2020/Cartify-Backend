@@ -6,7 +6,7 @@ export interface IProducts extends Document {
 		type: mongoose.Types.ObjectId;
 	};
 	name: string;
-	photo: string;
+	photo: string[];
 	productDetails: string;
 	category: string;
 	price: number;
