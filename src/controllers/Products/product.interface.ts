@@ -1,9 +1,9 @@
 interface Iproducts {
-  photo: string;
+	photo: string[];
 }
 
 interface IDeleteResult {
-  deletedCount: number;
+	deletedCount: number;
 }
 
 export { Iproducts, IDeleteResult };
