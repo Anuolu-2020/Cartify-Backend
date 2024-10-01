@@ -1,25 +1,14 @@
 import { NextFunction, Request, Response } from "express";
-import { deleteObject, ref } from "firebase/storage";
-import bucketStorage from "../../config/firebase.config";
 import productModel from "../../models/product.model";
 import { IUser } from "../../models/user.interface";
-import { productParams } from "../../types/requestQuery.interface";
+import {
+	productParams,
+	ReqBodyProduct,
+} from "../../types/requestQuery.interface";
 import { errorHandler } from "../../utils/error.handler.class";
 import { validateIds } from "../../utils/validateUserInput";
 import { IDeleteResult, Iproducts } from "./product.interface";
-
-async function deleteImagesFromFirebase(fileUrl: string) {
-	const fileRef = ref(bucketStorage, fileUrl);
-
-	await deleteObject(fileRef)
-		.then(() => {
-			console.log("File deleted Successfully");
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err;
-		});
-}
+import { deleteImagesFromFirebase } from "../../utils/firebase";
 
 // Delete a vendor's products
 const deleteVendorProducts = async (
@@ -27,8 +16,13 @@ const deleteVendorProducts = async (
 	res: Response,
 	next: NextFunction,
 ) => {
+	const { productIds } = req.body as ReqBodyProduct;
+
+	if (!productIds)
+		return next(new errorHandler(400, "Product ids not provided"));
+
 	// Validate the productIds
-	const { error } = validateIds(req.params.productIds);
+	const { error } = validateIds(productIds);
 
 	// If the productIds are not valid, return an error message
 	if (error) {
@@ -37,8 +31,6 @@ const deleteVendorProducts = async (
 	}
 
 	try {
-		const { productIds } = req.params;
-
 		const user = req.user as IUser;
 
 		const userId = user._id;
