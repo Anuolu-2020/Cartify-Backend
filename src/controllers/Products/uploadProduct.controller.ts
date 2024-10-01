@@ -1,48 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import {
-	getDownloadURL,
-	ref,
-	updateMetadata,
-	uploadBytesResumable,
-} from "firebase/storage";
 import xhr2 from "xhr2";
-import bucketStorage from "../../config/firebase.config";
 import productModel from "../../models/product.model";
 import { IUser } from "../../models/user.interface";
+import { uploadFilesToFirebase } from "../../utils/firebase";
 import { validateProductUpload } from "../../utils/validateUserInput";
 
 global.XMLHttpRequest = xhr2;
-
-async function uploadFilesToFirebase(
-	file: Express.Multer.File,
-): Promise<string> {
-	const timestamp = Date.now();
-	const name = file.originalname.split(".")[0];
-	const type = file.originalname.split(".")[1];
-	const fileName = `${name}_${timestamp}.${type}`;
-
-	// Step 1. Create reference for storage and file name in cloud
-	const imageRef = ref(bucketStorage, `images/${fileName}`);
-
-	try {
-		// Step 2. Upload the file in the bucket storage
-		const uploadImage = await uploadBytesResumable(imageRef, file.buffer);
-
-		// Create file metadata.
-		const newMetadata = {
-			cacheControl: "public,max-age=2629800000",
-			contentType: uploadImage.metadata.contentType,
-		};
-
-		// Update the metadata for the file.
-		await updateMetadata(imageRef, newMetadata);
-
-		//return image URL.
-		return await getDownloadURL(imageRef);
-	} catch (err) {
-		throw new Error(`An Error occurred while uploading: ${err}`);
-	}
-}
 
 const uploadProduct = async (
 	req: Request,
