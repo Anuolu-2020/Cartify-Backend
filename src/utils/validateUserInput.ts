@@ -77,9 +77,7 @@ function validateUserRoleUpdate(user: IUser) {
 
 //Validate ids to delete products
 function validateIds(ids: string[]) {
-	const schema = Joi.object({
-		productIds: Joi.array().required(),
-	});
+	const schema = Joi.array().required();
 
 	return schema.validate(ids, joiOptions);
 }
