@@ -12,6 +12,7 @@ import { isRestrictedTo } from "../../middlewares/roleAuth.middleware";
 import { getVendorOrders } from "../../controllers/vendor/getOrders.controller";
 import { acceptOrder } from "../../controllers/vendor/acceptOrder.controller";
 import { handleMulterError } from "../../utils/multerErrorHandler";
+import { updateProduct } from "../../controllers/Products/updateProducts";
 
 // Setting up multer as a middleware to grab photo uploads
 const storage = multer.memoryStorage();
@@ -132,6 +133,153 @@ router.use(isRestrictedTo("vendor", "admin"));
 router
 	.route("/product")
 	.post(upload.array("productImage", 3), handleMulterError, uploadProduct);
+
+/**
+ * @swagger
+ * /api/v{version}/vendor/product/{productId}:
+ *   patch:
+ *     summary: Update a product with new details and images
+ *     tags: [Vendor]
+ *     description: Allows a vendor to update an existing product, including uploading new images.
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the product to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - productName
+ *               - productDetails
+ *               - productPrice
+ *               - category
+ *               - units
+ *               - productImage
+ *             properties:
+ *               productName:
+ *                 type: string
+ *                 description: Updated name of the product
+ *               productDetails:
+ *                 type: string
+ *                 description: Updated detailed description of the product
+ *               productPrice:
+ *                 type: number
+ *                 description: Updated price of the product
+ *               category:
+ *                 type: string
+ *                 enum:
+ *                   - "Electronics & Gadgets"
+ *                   - "Fashion & Apparel"
+ *                   - "Health & Beauty"
+ *                   - "Home & Kitchen"
+ *                   - "Sports & Outdoors"
+ *                   - "Toys & Games"
+ *                   - "Books & Stationery"
+ *                 description: Updated category of the product
+ *               units:
+ *                 type: integer
+ *                 description: Updated number of units available
+ *               productImage:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 maxItems: 3
+ *                 description: Up to 3 new images of the product (max 1MB each). All existing images will be replaced.
+ *               discountPercentage:
+ *                 type: number
+ *                 description: Updated discount percentage for the product (optional)
+ *     responses:
+ *       201:
+ *         description: Product updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Product updated successfully
+ *                 payload:
+ *                   type: object
+ *                   properties:
+ *                     updatedProduct:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                           example: 60d5ecb74f52e
+ *                         name:
+ *                           type: string
+ *                           example: Updated Smartphone X
+ *                         photo:
+ *                           type: array
+ *                           items:
+ *                             type: string
+ *                           example:
+ *                             - "https://firebasestorage.url/newimage1.jpg"
+ *                             - "https://firebasestorage.url/newimage2.jpg"
+ *                         productDetails:
+ *                           type: string
+ *                           example: Updated details of the smartphone
+ *                         price:
+ *                           type: number
+ *                           example: 599.99
+ *                         category:
+ *                           type: string
+ *                           example: "Electronics & Gadgets"
+ *                         units:
+ *                           type: integer
+ *                           example: 100
+ *                         discountPercentage:
+ *                           type: number
+ *                           example: 10
+ *                         vendor:
+ *                           type: string
+ *                           example: 60d5ecb74f52e
+ *       400:
+ *         description: Invalid product data, file upload error, or no image provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: No image provided
+ *       401:
+ *         description: Unauthorized - User is not a vendor or admin
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Server error or failed to update product
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Failed to update product
+ */
+router
+	.route("/product/:productId")
+	.patch(upload.array("productImage", 3), handleMulterError, updateProduct);
 
 /**
  * @swagger
