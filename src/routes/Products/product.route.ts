@@ -15,7 +15,7 @@ const router: Router = express.Router();
  *     summary: Get all products
  *     tags: [Products]
  *     security: []
- *     description: Fetches all available products with optional filtering and limiting of fields.
+ *     description: Fetches all available products with optional filtering, pagination, and limiting of fields.
  *     parameters:
  *       - in: path
  *         name: version
@@ -28,6 +28,16 @@ const router: Router = express.Router();
  *         schema:
  *           type: string
  *         description: Fields to limit in the response
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: The page number for pagination (starts from 1)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: The number of items to return per page
  *     responses:
  *       200:
  *         description: Successfully fetched products
