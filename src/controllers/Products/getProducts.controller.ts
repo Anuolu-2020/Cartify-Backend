@@ -20,7 +20,7 @@ const getAllProducts = async (
 		const features = new ApiFeatures(
 			productModel.find(),
 			req.query,
-		).limitFields();
+		).limitFields().paginate();
 
 		// Get the products after filtering
 		const product = await features.modelQuery;
