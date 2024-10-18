@@ -97,7 +97,7 @@ const getVendorProducts = async (
 
 	try {
 		const features = new ApiFeatures(
-			productModel.find({ vendor: vendorId }),
+			productModel.find({ vendor: vendorId }).populate("vendor"),
 			req.query,
 		).limitFields();
 
