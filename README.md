@@ -57,3 +57,5 @@ To get started with Cartify Backend, follow these steps:
 6. **Testing:**
 Use tools like Postman to test the APIs. Refer to the API documentation for available endpoints and request/response formats. **(Coming Soon)**
    
+## Mobile App
+Cartify mobile app github repo:  https://github.com/Okikday/cartify_app
