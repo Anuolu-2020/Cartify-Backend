@@ -1,11 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import xhr2 from "xhr2";
 import productModel from "../../models/product.model";
 import { IUser } from "../../models/user.interface";
-import { uploadFilesToFirebase } from "../../utils/firebase";
+import { uploadFileToCloudinary } from "../../utils/cloudinary";
 import { validateProductUpload } from "../../utils/validateUserInput";
-
-global.XMLHttpRequest = xhr2;
 
 const uploadProduct = async (
 	req: Request,
@@ -30,10 +27,11 @@ const uploadProduct = async (
 			});
 		}
 
-		//Upload images and wait for all image url
-		const uploadedImagesUrls = await Promise.all(
-			files.map(uploadFilesToFirebase),
+		//Upload images to Cloudinary and wait for all assets
+		const uploadedAssets = await Promise.all(
+			files.map(uploadFileToCloudinary),
 		);
+		const uploadedImagesUrls = uploadedAssets.map((a) => a.url);
 
 		const {
 			productName,
@@ -51,6 +49,7 @@ const uploadProduct = async (
 			vendor: vendorId,
 			name: productName,
 			photo: uploadedImagesUrls,
+			photoAssets: uploadedAssets,
 			productDetails: productDetails,
 			price: productPrice,
 			category: category,

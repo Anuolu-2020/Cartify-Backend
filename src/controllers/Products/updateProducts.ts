@@ -1,18 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import xhr2 from "xhr2";
 import productModel from "../../models/product.model";
 import { IUser } from "../../models/user.interface";
 import { errorHandler } from "../../utils/error.handler.class";
 import {
-	deleteImagesFromFirebase,
-	uploadFilesToFirebase,
-} from "../../utils/firebase";
+	deleteImageFromCloudinary,
+	uploadFileToCloudinary,
+	extractPublicIdFromUrl,
+} from "../../utils/cloudinary";
 import {
 	validateProductId,
 	validateProductUpload,
 } from "../../utils/validateUserInput";
-
-global.XMLHttpRequest = xhr2;
 
 const updateProduct = async (
 	req: Request,
@@ -58,13 +56,33 @@ const updateProduct = async (
 			return next(new errorHandler(404, "Product not found"));
 		}
 
-		// Delete all existing images
-		await Promise.all(product.photo.map(deleteImagesFromFirebase));
+		// Delete all existing images from Cloudinary
+		if (product.photoAssets && product.photoAssets.length > 0) {
+			await Promise.all(
+				product.photoAssets.map((a: any) =>
+					deleteImageFromCloudinary(a.public_id).catch((e) => {
+						console.error(`Failed to delete ${a.public_id}:`, e.message);
+					}),
+				),
+			);
+		} else if (product.photo && product.photo.length > 0) {
+			// Fallback for legacy Firebase/Cloudinary URLs without photoAssets
+			await Promise.all(
+				product.photo.map((url: string) => {
+					const pid = extractPublicIdFromUrl(url);
+					if (pid) {
+						return deleteImageFromCloudinary(pid).catch(() => {});
+					}
+					return Promise.resolve();
+				}),
+			);
+		}
 
-		// Upload new images and wait for all image URLs
-		const uploadedImagesUrls = await Promise.all(
-			files.map(uploadFilesToFirebase),
+		// Upload new images to Cloudinary and wait for all assets
+		const uploadedAssets = await Promise.all(
+			files.map(uploadFileToCloudinary),
 		);
+		const uploadedImagesUrls = uploadedAssets.map((a) => a.url);
 
 		const {
 			productName,
@@ -81,6 +99,7 @@ const updateProduct = async (
 				vendor: vendorId,
 				name: productName,
 				photo: uploadedImagesUrls,
+				photoAssets: uploadedAssets,
 				productDetails: productDetails,
 				price: productPrice,
 				category: category,

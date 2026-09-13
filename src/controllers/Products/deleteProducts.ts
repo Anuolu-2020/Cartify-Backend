@@ -8,7 +8,10 @@ import {
 import { errorHandler } from "../../utils/error.handler.class";
 import { validateIds } from "../../utils/validateUserInput";
 import { IDeleteResult, Iproducts } from "./product.interface";
-import { deleteImagesFromFirebase } from "../../utils/firebase";
+import {
+	deleteImageFromCloudinary,
+	extractPublicIdFromUrl,
+} from "../../utils/cloudinary";
 
 // Delete a vendor's products
 const deleteVendorProducts = async (
@@ -40,10 +43,24 @@ const deleteVendorProducts = async (
 			vendor: userId,
 		});
 
-		//Delete the product pictures
-		products.forEach(async (product: Iproducts) => {
-			await Promise.all(product.photo.map(deleteImagesFromFirebase));
-		});
+		//Delete the product pictures from Cloudinary
+		await Promise.all(
+			products.flatMap((product: Iproducts) => {
+				if (product.photoAssets && product.photoAssets.length > 0) {
+					return product.photoAssets.map((a) =>
+						deleteImageFromCloudinary(a.public_id).catch(() => {}),
+					);
+				}
+				return product.photo
+					.map((url: string) => {
+						const pid = extractPublicIdFromUrl(url);
+						return pid
+							? deleteImageFromCloudinary(pid).catch(() => {})
+							: null;
+					})
+					.filter(Boolean) as Promise<void>[];
+			}),
+		);
 
 		const vendor = req.user as IUser;
 
