@@ -19,6 +19,16 @@ const productSchema = new Schema<IProducts>(
 			type: [String],
 			required: [true, "Product photo url must be provided"],
 		},
+		photoAssets: {
+			type: [
+				{
+					url: { type: String, required: true },
+					public_id: { type: String, required: true },
+					_id: false,
+				},
+			],
+			default: [],
+		},
 		productDetails: {
 			type: String,
 			required: [true, "Product details muust be provided"],

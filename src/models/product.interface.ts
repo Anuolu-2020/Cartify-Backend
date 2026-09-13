@@ -1,5 +1,10 @@
 import mongoose, { Document } from "mongoose";
 
+export interface IPhotoAsset {
+	url: string;
+	public_id: string;
+}
+
 export interface IProducts extends Document {
 	vendor: {
 		ref: string;
@@ -7,6 +12,7 @@ export interface IProducts extends Document {
 	};
 	name: string;
 	photo: string[];
+	photoAssets: IPhotoAsset[];
 	productDetails: string;
 	category: string;
 	price: number;
